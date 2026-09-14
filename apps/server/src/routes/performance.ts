@@ -27,8 +27,8 @@ performanceRouter.get("/performance", async (_req, res) => {
   const resolved = outcomes.filter((o) => o.outcome === "TARGET_HIT" || o.outcome === "INVALIDATED" || o.outcome === "EXPIRED");
 
   const returns = resolved.map((o) => (o.outcome === "TARGET_HIT" ? o.maxFavorableMovePct : o.maxAdverseMovePct));
-  const avgReturn = returns.length > 0 ? returns.reduce((a, b) => a + b, 0) / returns.length : 0;
-  const medianReturn = median(returns);
+  const avgReturn = returns.length > 0 ? returns.reduce((a, b) => a + b, 0) / returns.length : null;
+  const medianReturn = returns.length > 0 ? median(returns) : null;
 
   // Max drawdown across the sequence of resolved-signal returns, taken in chronological order.
   let peak = 0;
@@ -39,6 +39,7 @@ performanceRouter.get("/performance", async (_req, res) => {
     peak = Math.max(peak, cumulative);
     maxDrawdown = Math.min(maxDrawdown, cumulative - peak);
   }
+  const maxDrawdownPct = returns.length > 0 ? maxDrawdown : null;
 
   let worstLosingStreak = 0;
   let currentStreak = 0;
@@ -51,7 +52,7 @@ performanceRouter.get("/performance", async (_req, res) => {
     }
   }
 
-  const falsePositiveRate = resolved.length > 0 ? invalidated / resolved.length : 0;
+  const falsePositiveRate = resolved.length > 0 ? invalidated / resolved.length : null;
 
   // Score calibration: does a higher score actually correlate with a better outcome?
   const buckets = [
@@ -81,7 +82,7 @@ performanceRouter.get("/performance", async (_req, res) => {
     invalidationPct: resolved.length > 0 ? invalidated / resolved.length : null,
     avgReturnPct: avgReturn,
     medianReturnPct: medianReturn,
-    maxDrawdownPct: maxDrawdown,
+    maxDrawdownPct: maxDrawdownPct,
     worstLosingStreak,
     falsePositiveRate,
     scoreCalibration,

@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0e14;
+  --color-surface: #11151f;
+  --color-surface-raised: #161b28;
+  --color-border: #232838;
+  --color-text: #e7e9ee;
+  --color-text-muted: #8b93a7;
+  --color-text-faint: #5b6478;
+
+  --color-accent: #f5b942;
+  --color-accent-muted: #8a6a2a;
+
+  --color-risk-on: #3ddc97;
+  --color-risk-off: #e5566d;
+  --color-neutral-signal: #8b93a7;
+
+  --color-score-high: #3ddc97;
+  --color-score-mid: #f5b942;
+  --color-score-low: #6b7386;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
