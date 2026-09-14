@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db } from "../db/client.js";
-import { markets, signals } from "../db/schema.js";
+import { db, markets, signals } from "@kraken-memes/core";
 
 /** Truncates all tables that tests might have written to, resetting for the next test. Never touches scan_config/monitor_health singletons' existence, only resets other rows via cascade. */
 export async function resetTestData(): Promise<void> {

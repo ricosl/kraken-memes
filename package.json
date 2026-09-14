@@ -10,8 +10,9 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "db:generate": "npm run db:generate -w apps/server",
-    "db:migrate": "npm run db:migrate -w apps/server",
+    "db:generate": "npm run db:generate -w packages/core",
+    "db:migrate": "npm run db:migrate -w packages/core",
+    "db:seed": "npm run db:seed -w packages/core",
     "dev:server": "npm run dev -w apps/server",
     "dev:worker": "npm run dev -w apps/worker",
     "dev:web": "npm run dev -w apps/web"

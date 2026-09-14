@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "../db/client.js";
-import { candles, features, markets, orderBookSnapshots, signalEvents, signals } from "../db/schema.js";
-import { logger } from "../logger.js";
+import { candles, db, features, logger, markets, orderBookSnapshots, signalEvents, signals } from "@kraken-memes/core";
 
 export const marketsRouter = Router();
 

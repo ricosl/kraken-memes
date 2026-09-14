@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { db } from "../db/client.js";
-import { logger } from "../logger.js";
+import { db, logger } from "@kraken-memes/core";
 
 export const healthRouter = Router();
 

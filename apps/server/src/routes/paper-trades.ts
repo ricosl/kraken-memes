@@ -2,10 +2,7 @@ import { Router } from "express";
 import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { closePaperTrade, DEFAULT_PAPER_TRADE_COSTS, simulateEntryFill } from "@kraken-memes/shared";
-import { db } from "../db/client.js";
-import { candles, paperTrades, signals } from "../db/schema.js";
-import { getOrCreateDefaultUserId } from "../default-user.js";
-import { logger } from "../logger.js";
+import { candles, db, getOrCreateDefaultUserId, logger, paperTrades, signals } from "@kraken-memes/core";
 
 export const paperTradesRouter = Router();
 

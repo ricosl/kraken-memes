@@ -1,10 +1,7 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "../db/client.js";
-import { pushSubscriptions } from "../db/schema.js";
-import { getOrCreateDefaultUserId } from "../default-user.js";
-import { logger } from "../logger.js";
+import { db, getOrCreateDefaultUserId, logger, pushSubscriptions } from "@kraken-memes/core";
 
 export const pushRouter = Router();
 

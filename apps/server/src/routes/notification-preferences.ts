@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "../db/client.js";
-import { notificationPreferences } from "../db/schema.js";
-import { getOrCreateDefaultUserId } from "../default-user.js";
+import { db, getOrCreateDefaultUserId, notificationPreferences } from "@kraken-memes/core";
 
 export const notificationPreferencesRouter = Router();
 

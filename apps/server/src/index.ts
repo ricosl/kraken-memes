@@ -1,7 +1,5 @@
-import "./env.js";
+import { configureWebPush, logger } from "@kraken-memes/core";
 import { createApp } from "./app.js";
-import { configureWebPush } from "./push/webpush.js";
-import { logger } from "./logger.js";
 
 configureWebPush();
 

@@ -8,7 +8,7 @@ import { pushRouter } from "./routes/push.js";
 import { notificationPreferencesRouter } from "./routes/notification-preferences.js";
 import { paperTradesRouter } from "./routes/paper-trades.js";
 import { performanceRouter } from "./routes/performance.js";
-import { logger } from "./logger.js";
+import { logger } from "@kraken-memes/core";
 
 export function createApp() {
   const app = express();

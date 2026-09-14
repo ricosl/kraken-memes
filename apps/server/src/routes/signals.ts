@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { desc, eq, inArray } from "drizzle-orm";
-import { signalEvents, signals } from "../db/schema.js";
-import { db } from "../db/client.js";
+import { db, signalEvents, signals } from "@kraken-memes/core";
 
 export const signalsRouter = Router();
 

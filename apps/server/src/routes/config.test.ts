@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
-import { db } from "../db/client.js";
-import { scanConfig } from "../db/schema.js";
+import { db, scanConfig } from "@kraken-memes/core";
 import { createApp } from "../app.js";
 
 const app = createApp();

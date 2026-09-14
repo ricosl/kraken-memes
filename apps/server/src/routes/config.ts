@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "../db/client.js";
-import { scanConfig } from "../db/schema.js";
-import { logger } from "../logger.js";
+import { db, logger, scanConfig } from "@kraken-memes/core";
 
 export const configRouter = Router();
 

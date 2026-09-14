@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db } from "../db/client.js";
+import { db } from "@kraken-memes/core";
 
 export const performanceRouter = Router();
 
