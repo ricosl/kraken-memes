@@ -65,8 +65,10 @@ Step 2, never into a committed file.
    **both** the web service and the cron job (same values on each). Paste
    the keys from Step 1.
 5. Click **Apply**. Render will provision the database, then build and
-   deploy the web service (running migrations + seed via its pre-deploy
-   command automatically), then set up the cron job on its schedule.
+   deploy the web service (it runs migrations + seed itself on every boot —
+   see `apps/server/src/index.ts` — since Render's free web services don't
+   support a separate pre-deploy step), then set up the cron job on its
+   schedule.
 6. **Check the plan/cost Render shows for the cron job before confirming.**
    Postgres and the web service should show as free. The cron job's exact
    plan naming/pricing can change on Render's side; each run is brief (a

@@ -26,8 +26,10 @@ services:
     runtime: node
     plan: free
     buildCommand: npm install
+    # Migrations + seed run on every server boot (see apps/server/src/index.ts)
+    # rather than as a separate pre-deploy step — Render's free web services
+    # don't support preDeployCommand.
     startCommand: npm run start -w apps/server
-    preDeployCommand: npm run db:migrate -w packages/core && npm run db:seed -w packages/core
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
