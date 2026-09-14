@@ -367,3 +367,7 @@ export const paperTradesRelations = relations(paperTrades, ({ one }) => ({
 export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
   user: one(users, { fields: [pushSubscriptions.userId], references: [users.id] }),
 }));
+
+export const signalOutcomesRelations = relations(signalOutcomes, ({ one }) => ({
+  signal: one(signals, { fields: [signalOutcomes.signalId], references: [signals.id] }),
+}));
