@@ -1,16 +1,15 @@
 # Render Blueprint for Kraken Breakout Intelligence.
 #
 # Deploy: dashboard.render.com -> New -> Blueprint -> select this repo.
-# Render reads this file and proposes three resources below. See
-# DEPLOYMENT.md for the full step-by-step guide, including which env vars
-# you'll be prompted to fill in by hand (marked `sync: false` below — never
-# committed to the repo).
+# Render reads this file and proposes two resources below (Postgres + the
+# API server), both on Render's free plan. See DEPLOYMENT.md for the full
+# step-by-step guide, including which env vars you'll be prompted to fill
+# in by hand (marked `sync: false` below — never committed to the repo).
 #
-# Cost note: the database and web service use Render's free plan. The cron
-# job's plan/pricing is shown by Render at blueprint-apply time — each run
-# is brief (a few seconds to ~1 minute), so cost should be minimal even if
-# it isn't literally $0. See DEPLOYMENT.md for the paid-persistent-worker
-# alternative if you'd rather avoid any usage-based charge.
+# The periodic Kraken scan itself runs elsewhere: Render has no free plan
+# for an always-on or scheduled background process, so that job runs as a
+# free GitHub Actions scheduled workflow instead (.github/workflows/scan.yml),
+# connecting directly to this same Postgres database. See DEPLOYMENT.md.
 
 databases:
   - name: kraken-memes-db
@@ -57,7 +56,7 @@ services:
         value: USD
       - key: SOCIAL_PROVIDER
         value: none
-      # Freshness thresholds tuned for the 15-minute cron worker below, not
+      # Freshness thresholds tuned for the 15-minute GitHub Actions scan, not
       # the sub-minute persistent daemon. If you switch to the persistent
       # worker (see DEPLOYMENT.md), remove these three to fall back to the
       # tighter defaults.
@@ -67,39 +66,3 @@ services:
         value: "1800"
       - key: HEALTH_SCAN_STALE_SECONDS
         value: "2100"
-
-  # Free-tier monitoring: one full discovery -> ingest -> scan -> notify pass
-  # every 15 minutes, then exits. See apps/worker/src/cron.ts and
-  # DEPLOYMENT.md for the persistent-daemon alternative (apps/worker/src/index.ts).
-  - type: cron
-    name: kraken-memes-worker-cron
-    runtime: node
-    plan: starter
-    schedule: "*/15 * * * *"
-    buildCommand: npm install
-    startCommand: npm run cron -w apps/worker
-    envVars:
-      - key: NODE_VERSION
-        value: "22"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: kraken-memes-db
-          property: connectionString
-      - key: VAPID_PUBLIC_KEY
-        sync: false
-      - key: VAPID_PRIVATE_KEY
-        sync: false
-      - key: VAPID_SUBJECT
-        value: mailto:you@example.com
-      - key: KRAKEN_REST_BASE_URL
-        value: https://api.kraken.com
-      - key: KRAKEN_WS_URL
-        value: wss://ws.kraken.com/v2
-      - key: KRAKEN_QUOTE_ASSET
-        value: USD
-      - key: SOCIAL_PROVIDER
-        value: none
-      - key: WORKER_CRON_INTERVAL_MINUTES
-        value: "15"
-      - key: WORKER_CRON_TRADE_LOOKBACK_MINUTES
-        value: "20"

@@ -1,0 +1,39 @@
+name: Kraken scan
+
+# Runs the worker's single-pass discovery -> ingest -> scan -> notify cycle
+# (apps/worker/src/cron.ts) on a schedule, free, in place of a paid Render
+# Cron Job. See DEPLOYMENT.md for the required repo secrets.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {} # lets you trigger a run manually from the Actions tab, for testing
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    # Safety net: fail fast instead of burning Actions minutes if something hangs
+    # (e.g. a DB connection issue) rather than actually failing/exiting.
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - run: npm ci
+
+      - run: npm run cron -w apps/worker
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: mailto:you@example.com
+          KRAKEN_REST_BASE_URL: https://api.kraken.com
+          KRAKEN_WS_URL: wss://ws.kraken.com/v2
+          KRAKEN_QUOTE_ASSET: USD
+          SOCIAL_PROVIDER: none
+          WORKER_CRON_INTERVAL_MINUTES: "15"
+          WORKER_CRON_TRADE_LOOKBACK_MINUTES: "20"
