@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kraken_memes
+      POSTGRES_PASSWORD: kraken_memes
+      POSTGRES_DB: kraken_memes
+    ports:
+      - "5432:5432"
+    volumes:
+      - kraken_memes_pg_data:/var/lib/postgresql/data
+
+volumes:
+  kraken_memes_pg_data:
