@@ -12,13 +12,31 @@ export interface HealthState {
   lastCompletedScan: Date | null;
 }
 
+export interface ReportHealthOptions {
+  /**
+   * Whether this deployment mode is expected to hold a live Kraken WS
+   * connection between health reports. The persistent daemon (index.ts) is;
+   * a scheduled one-shot run (cron.ts) never is by design, so penalizing it
+   * for `wsStatus !== "CONNECTED"` would make a correctly-working cron
+   * deployment look permanently DEGRADED. Default true (daemon behavior).
+   */
+  requireLiveConnection?: boolean;
+  /** How stale lastCompletedScan can be before health degrades, in ms. Should track the actual run cadence. */
+  scanStaleAfterMs?: number;
+}
+
 /**
  * Derives the overall MONITORING/DEGRADED/OFFLINE status (spec section 33)
- * and writes it to monitor_health. Never reports MONITORING when the
- * underlying WS connection is down or data has gone stale — the PWA must
- * never be told the system is watching the market when it isn't.
+ * and writes it to monitor_health. Never reports MONITORING when data has
+ * gone stale for *this deployment's own cadence* — the PWA must never be
+ * told the system is watching the market when it isn't, but a scheduled
+ * cron deployment's idea of "stale" is necessarily its own run interval, not
+ * the persistent daemon's sub-minute one.
  */
-export async function reportHealth(state: HealthState): Promise<void> {
+export async function reportHealth(state: HealthState, options: ReportHealthOptions = {}): Promise<void> {
+  const requireLiveConnection = options.requireLiveConnection ?? true;
+  const scanStaleAfterMs = options.scanStaleAfterMs ?? 20 * 60 * 1000;
+
   const eligibleMarkets = await getEligibleMarkets();
   const activeSignals = await db.query.signals.findMany({
     where: inArray(signals.state, ["HIGH_PRIORITY", "ACTIVE", "STRENGTHENING", "WEAKENING"]),
@@ -26,8 +44,8 @@ export async function reportHealth(state: HealthState): Promise<void> {
   });
 
   const now = Date.now();
-  const scanIsStale = !state.lastCompletedScan || now - state.lastCompletedScan.getTime() > 20 * 60 * 1000;
-  const wsIsDown = state.wsStatus !== "CONNECTED";
+  const scanIsStale = !state.lastCompletedScan || now - state.lastCompletedScan.getTime() > scanStaleAfterMs;
+  const wsIsDown = requireLiveConnection && state.wsStatus !== "CONNECTED";
 
   const status: "MONITORING" | "DEGRADED" | "OFFLINE" = wsIsDown && scanIsStale ? "OFFLINE" : wsIsDown || scanIsStale ? "DEGRADED" : "MONITORING";
 

@@ -1,0 +1,41 @@
+# Netlify config for the PWA frontend (apps/web).
+#
+# Deploy: app.netlify.com -> Add new site -> Import an existing project ->
+# select this repo. Netlify reads this file automatically; no manual build
+# settings needed. See DEPLOYMENT.md for the full guide.
+#
+# The backend (API server) is proxied through /api/* below rather than
+# talked to directly, so the browser never needs CORS configured and the
+# frontend's existing relative fetch("/api/...") calls work unchanged.
+# IMPORTANT: if Render assigns kraken-memes-server a different subdomain
+# than expected (name collision), update the "to" URL below to match.
+
+[build]
+  command = "npm install && npm run build -w apps/web"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Proxy API calls to the Render-hosted backend. Must come before the SPA
+# catch-all below (Netlify matches redirects in order).
+[[redirects]]
+  from = "/api/*"
+  to = "https://kraken-memes-server.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Client-side routing (React Router): let real static files (JS bundles, the
+# service worker, manifest, icons) serve directly; only fall back to
+# index.html when nothing else matches.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Never let the service worker itself be cached stale — it's what delivers
+# updates to everything else.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

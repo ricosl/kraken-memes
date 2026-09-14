@@ -77,12 +77,13 @@ export async function ingestTrades(restClient: KrakenRestClient, marketId: strin
   const seriesKey = Object.keys(result).find((k) => k !== "last");
   const tuples = seriesKey ? (result[seriesKey] as unknown as Array<[string, string, number, string, string, string, number]>) : [];
 
-  const rows = tuples.map(([price, volume, time, side]) => ({
+  const rows = tuples.map(([price, volume, time, side, , , tradeId]) => ({
     marketId,
     timestamp: new Date(time * 1000),
     price: Number(price),
     volume: Number(volume),
     aggressor: side === "b" ? ("BUY" as const) : side === "s" ? ("SELL" as const) : ("UNKNOWN" as const),
+    krakenTradeId: tradeId ?? null,
   }));
 
   await insertTrades(rows);

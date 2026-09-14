@@ -99,7 +99,10 @@ export async function getLatestOrderBookSnapshot(marketId: string) {
 
 export async function insertTrades(rows: Array<typeof trades.$inferInsert>): Promise<void> {
   if (rows.length === 0) return;
-  await db.insert(trades).values(rows);
+  // onConflictDoNothing on (marketId, krakenTradeId) so re-fetching an overlapping
+  // time window — e.g. a cron-mode worker with no in-memory cursor between runs —
+  // never inserts duplicate trade rows.
+  await db.insert(trades).values(rows).onConflictDoNothing({ target: [trades.marketId, trades.krakenTradeId] });
 }
 
 export async function getTradeStats(marketId: string, sinceMs: number, untilMs: number) {

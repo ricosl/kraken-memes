@@ -1,0 +1,2 @@
+ALTER TABLE "trades" ADD COLUMN "kraken_trade_id" bigint;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "trades_market_kraken_trade_id_idx" ON "trades" USING btree ("market_id","kraken_trade_id");

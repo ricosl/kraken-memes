@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { db, markets, signalEvents } from "@kraken-memes/core";
+import { db, markets, signalEvents, trades } from "@kraken-memes/core";
 import { eq } from "drizzle-orm";
 import {
   createSignal,
@@ -7,7 +7,9 @@ import {
   getLastNotificationForMarket,
   getOpenSignal,
   getRecentCandles,
+  getTradeStats,
   insertCandles,
+  insertTrades,
   recordNotification,
   updateSignalState,
   upsertMarketFromDiscovery,
@@ -47,6 +49,33 @@ describe("candle storage", () => {
     expect(candles).toHaveLength(2);
     expect(candles[0]!.timestamp < candles[1]!.timestamp).toBe(true);
     expect(candles[0]!.close).toBe(2.0); // updated, not duplicated
+  });
+});
+
+describe("trade storage", () => {
+  it("dedupes on (marketId, krakenTradeId) so re-fetching an overlapping window never duplicates a trade", async () => {
+    const market = await createTestMarket();
+    const row = { marketId: market.id, timestamp: new Date(), price: 1.23, volume: 100, aggressor: "BUY" as const, krakenTradeId: 42 };
+
+    await insertTrades([row]);
+    await insertTrades([row]); // simulates a cron run re-fetching the same lookback window
+
+    const rows = await db.query.trades.findMany({ where: eq(trades.marketId, market.id) });
+    expect(rows).toHaveLength(1);
+  });
+
+  it("counts trades within a time window via getTradeStats", async () => {
+    const market = await createTestMarket();
+    const now = Date.now();
+    await insertTrades([
+      { marketId: market.id, timestamp: new Date(now - 30 * 60_000), price: 1, volume: 50, krakenTradeId: 1 },
+      { marketId: market.id, timestamp: new Date(now - 10 * 60_000), price: 1, volume: 75, krakenTradeId: 2 },
+      { marketId: market.id, timestamp: new Date(now - 2 * 60 * 60_000), price: 1, volume: 999, krakenTradeId: 3 }, // outside the 1h window
+    ]);
+
+    const stats = await getTradeStats(market.id, now - 60 * 60_000, now);
+    expect(stats.count).toBe(2);
+    expect(stats.totalVolume).toBeCloseTo(125);
   });
 });
 

@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   doublePrecision,
   index,
@@ -150,8 +151,16 @@ export const trades = pgTable(
     price: doublePrecision("price").notNull(),
     volume: doublePrecision("volume").notNull(),
     aggressor: tradeAggressorEnum("aggressor").notNull().default("UNKNOWN"),
+    /** Kraken's own trade id, when available. Lets ingestion re-fetch an overlapping
+     * time window (e.g. a cron-mode worker with no in-memory cursor between runs)
+     * without inserting duplicate rows. Null for older rows ingested before this
+     * column existed. */
+    krakenTradeId: bigint("kraken_trade_id", { mode: "number" }),
   },
-  (table) => [index("trades_market_timestamp_idx").on(table.marketId, table.timestamp)],
+  (table) => [
+    index("trades_market_timestamp_idx").on(table.marketId, table.timestamp),
+    uniqueIndex("trades_market_kraken_trade_id_idx").on(table.marketId, table.krakenTradeId),
+  ],
 );
 
 export const orderBookSnapshots = pgTable(

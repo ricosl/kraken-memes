@@ -3,10 +3,15 @@ import { db, logger } from "@kraken-memes/core";
 
 export const healthRouter = Router();
 
+// Defaults assume the persistent daemon (apps/worker/src/index.ts), which
+// updates these on a sub-minute cadence. A free-tier deployment running
+// apps/worker/src/cron.ts on a scheduled interval instead should override
+// these via env vars to match that interval — otherwise a correctly-working
+// cron deployment would always read as stale/DEGRADED between runs.
 const STALE_AFTER_SECONDS = {
-  krakenConnection: 120,
-  marketData: 60,
-  scan: 60 * 20, // a scan should complete at least every ~20 min (15m cycle + buffer)
+  krakenConnection: Number(process.env.HEALTH_KRAKEN_CONNECTION_STALE_SECONDS) || 120,
+  marketData: Number(process.env.HEALTH_MARKET_DATA_STALE_SECONDS) || 60,
+  scan: Number(process.env.HEALTH_SCAN_STALE_SECONDS) || 60 * 20, // a scan should complete at least every ~20 min (15m cycle + buffer)
 };
 
 healthRouter.get("/health", async (_req, res) => {

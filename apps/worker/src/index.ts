@@ -1,4 +1,4 @@
-import { logger, pool } from "@kraken-memes/core";
+import { configureWebPush, logger, pool } from "@kraken-memes/core";
 import { NoopSocialSignalProvider, type SocialSignalProvider } from "@kraken-memes/shared";
 import { createKrakenRestClient, createKrakenWsClient } from "./kraken-clients.js";
 import { runMarketDiscovery } from "./market-discovery.js";
@@ -24,6 +24,7 @@ function selectSocialProvider(): SocialSignalProvider {
 async function main() {
   logger.info("worker_starting", { scanIntervalMs: SCAN_INTERVAL_MS, quoteAsset: QUOTE_ASSET });
 
+  configureWebPush();
   const restClient = createKrakenRestClient();
   const socialProvider = selectSocialProvider();
 
