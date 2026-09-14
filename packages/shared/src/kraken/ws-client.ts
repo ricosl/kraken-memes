@@ -16,7 +16,11 @@ export interface KrakenWsClientOptions {
   /** Called with parsed messages as they arrive. */
   onMessage: (msg: KrakenWsMessage) => void;
   onStatusChange?: (status: "CONNECTING" | "CONNECTED" | "DISCONNECTED") => void;
-  logger?: { info: (msg: string, meta?: object) => void; warn: (msg: string, meta?: object) => void; error: (msg: string, meta?: object) => void };
+  logger?: {
+    info: (msg: string, meta?: Record<string, unknown>) => void;
+    warn: (msg: string, meta?: Record<string, unknown>) => void;
+    error: (msg: string, meta?: Record<string, unknown>) => void;
+  };
   initialBackoffMs?: number;
   maxBackoffMs?: number;
 }

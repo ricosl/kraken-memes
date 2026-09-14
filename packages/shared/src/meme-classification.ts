@@ -37,7 +37,7 @@ const MEME_NAME_PATTERNS = [/dog/i, /cat/i, /inu/i, /pepe/i, /elon/i, /moon/i, /
  * that might be a meme just because it's unrecognized, and never silently
  * include a non-meme coin either.
  */
-export function suggestMemeClassification(baseAsset: string): MemeClassification {
+export function suggestMemeClassification(baseAsset: string): Extract<MemeClassification, "AUTO_CLASSIFIED" | "PENDING_REVIEW"> {
   if (KNOWN_MEME_BASE_ASSETS.has(baseAsset.toUpperCase())) return "AUTO_CLASSIFIED";
   if (MEME_NAME_PATTERNS.some((pattern) => pattern.test(baseAsset))) return "AUTO_CLASSIFIED";
   return "PENDING_REVIEW";
